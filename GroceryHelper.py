@@ -35,9 +35,9 @@ currentDate = datetime.datetime.today()
 # Class/Function Definitions
 class Product:
     def __init__(self, name, expDate):
-        self.name = name
-        self.expDate = expDate
-        self.quantity = 1
+        self.name = name        # type str
+        self.expDate = expDate  # type datetime
+        self.quantity = 1       # type int
 
     def __repr__(self):
         return self.name + ": Expires " + str(self.expDate)
@@ -50,6 +50,7 @@ def displayInventory(productList):
     ''' Displays all items currently in inventory, as well as total size
         If item is expired item will print in red
     '''
+    print()
     for product in productList:
         if product.isExpired():
             print(Fore.RED + str(product))
@@ -67,7 +68,6 @@ def inputProduct(productList):
     # item creation code
     while True:
         try:
-
             # get product name
             name = str(input("Please input product name: "))
 
@@ -96,16 +96,17 @@ def inputProduct(productList):
 
         # Loops if user input data incorrectly, causing strptime to throw a ValueError
         except ValueError:
-            print('\nPlease enter all fields in the correct format\n')
+            print('\nPlease enter all fields in the correct format.\n')
 
     # Creates new Product object and adjusts quantities accordingly
     newProduct = Product(name, expDateClass)
+
     # quantity code
     for item in productList:
         if item.name == newProduct.name:
             item.quantity += 1
             newProduct.name += '('+ str(item.quantity) + ')'
-            newProduct.quantity += 1
+            newProduct.quantity = item.quantity
 
     # Adds new Product object to list of products
     productList += [newProduct]
@@ -117,10 +118,10 @@ def deleteProduct(productList):
     '''
 
     # select product and ensure it is in inventory
-    product = str(input('Please input the name of the product you wish to remove, or input "All" to empty inventory: '))
+    product = str(input('Please input the name of the product you wish to remove, or input "All" to empty inventory: ')).lower()
     
     # if "All"
-    if product.lower() == "all":
+    if product == "all":
         while True:
             deleteConfirmAll = str(input("Are you sure you wish to delete all products from your inventory? Y/N ")).lower()
             if deleteConfirmAll == 'y':
@@ -136,10 +137,10 @@ def deleteProduct(productList):
 
         # finds and deletes product after confirmation
         for item in productList:
-            if item.name == product:
+            if item.name.lower() == product:
 
                 while True:
-                    deleteConfirm = str(input("Are you sure you wish to delete " + product + " from your inventory? Y/N ")).lower()
+                    deleteConfirm = str(input("Are you sure you wish to delete " + item.name + " from your inventory? Y/N ")).lower()
                     if deleteConfirm == 'y':
                         productList.remove(item)
                         return
@@ -151,6 +152,9 @@ def deleteProduct(productList):
         print("Invalid product. Check inventory and make sure name is correct.")
 
 def checkExpired(productList):
+    ''' scans through all products and determines what is expired
+        offers user choice to delete expired items from inventory
+    '''
 
     # scans through all products
     for product in productList:
@@ -169,11 +173,19 @@ def checkExpired(productList):
                 else:
                     print('\nInvalid choice. Please try again.')
 
+def displayDev(productList):
+    print()
+    for product in productList:
+        print("product.name: " + product.name)
+        print("product.expDate: " + str(product.expDate))
+        print("product.quantity: " + str(product.quantity))
+        print()
+
 # Main function
 def main():
 
-    print("GroceryHelper Copyright (C) 2017 Nathan Weinberg\nThis program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.\nThis is free software, and you are welcome to redistribute it\nunder certain conditions; type `show c' for details.")
-
+    # license boilerplate
+    print("GroceryHelper Copyright (C) 2017 Nathan Weinberg\nThis program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.\nThis is free software, and you are welcome to redistribute it\nunder certain conditions; type `show c' for details.\n")
 
     # Imports data from shelfFile; if none exists creates new list
     try:
@@ -205,18 +217,26 @@ def main():
             # Display inventory
             if choice == 1:
                 displayInventory(productList)
+                
             # Input new product
             elif choice == 2:
-                inputProduct(productList)               
+                inputProduct(productList)  
+
             # Delete product
             elif choice == 3:
                 deleteProduct(productList)
+
             # Exit
             elif choice == 0:
                 break
+
+            # Dev Display
+            elif choice == 11:
+                displayDev(productList)
+
             # Invalid choice
             else:
-                print('\nInvalid choice. Please try again.\n')
+                print('\nInvalid choice. Please try again.')
 
     # Saves shelf file and exits program
     shelfFile['productList'] = productList
