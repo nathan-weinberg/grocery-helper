@@ -1,0 +1,7 @@
+# shelf files
+.dat
+.dir
+.bak
+
+# misc
+debug.log
