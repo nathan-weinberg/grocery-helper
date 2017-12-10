@@ -101,21 +101,33 @@ def inputProduct(productList):
     # Creates new Product object and adjusts quantities accordingly
     newProduct = Product(name, expDateClass)
 
-    # quantity code
+    # gives item appropriate name
+    masterItem = None
     for item in productList:
         if item.name == newProduct.name:
-            item.quantity += 1
-            newProduct.name += '('+ str(item.quantity) + ')'
-            newProduct.quantity = item.quantity
+            masterItem = item
+            masterItem.quantity += 1
+            newProduct.name += '('+ str(masterItem.quantity) + ')'
 
     # Adds new Product object to list of products
     productList += [newProduct]
+
+    # quantity code
+    if masterItem != None:
+        spliceVal = len(masterItem.name)
+        for item in productList:
+            if item.name[:spliceVal] == masterItem.name:
+                item.quantity = masterItem.quantity
+
     # Sorts list
     productList.sort(key=lambda product: product.name)
 
 def deleteProduct(productList):
     ''' deletes one or all items from inventory
     '''
+
+    if len(productList) == 0:
+        return
 
     # select product and ensure it is in inventory
     product = str(input('Please input the name of the product you wish to remove, or input "All" to empty inventory: ')).lower()
@@ -174,6 +186,8 @@ def checkExpired(productList):
                     print('\nInvalid choice. Please try again.')
 
 def displayDev(productList):
+    ''' debug
+    '''
     print()
     for product in productList:
         print("product.name: " + product.name)
