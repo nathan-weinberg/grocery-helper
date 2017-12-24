@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # Coded in Python 3.6
 
 # imports
+import os
+import sys
 import shelve
 import datetime
 
@@ -34,10 +36,13 @@ currentDate = datetime.datetime.today()
 
 # Class/Function Definitions
 class Product:
-    def __init__(self, name, expDate):
-        self.name = name        # type str
-        self.expDate = expDate  # type datetime
-        self.quantity = 1       # type int
+    def __init__(self, name, expDate): 
+        self.name = name                                     # type str
+        self.expDate = expDate                               # type datetime
+
+        self.type = name.split('(')[0].lower()               # type str
+        self.quantity = 1                                    # type int
+        self.id = 1
 
     def __repr__(self):
         return self.name + ": Expires " + str(self.expDate)
@@ -45,6 +50,28 @@ class Product:
     def isExpired(self):
         if self.expDate < currentDate:
             return True
+
+def checkExpired(productList):
+    ''' scans through all products and determines what is expired
+        offers user choice to delete expired items from inventory
+    '''
+
+    # scans through all products
+    for product in productList:
+
+        # if product is expired, alert user and prompt if they wish to delete it from inventory
+        if product.isExpired():
+
+            while True:
+                choice = str(input(product.name + ' has expired. Do you wish to delete it from your inventory? Y/N ')).lower()
+                # NOTE: Cannot delete from productList directly due to nested for loop; instead stores product in delQueue
+                if choice == 'y':
+                    productList.remove(product)
+                    break
+                elif choice == 'n':
+                    break
+                else:
+                    print('\nInvalid choice. Please try again.')
 
 def displayInventory(productList):
     ''' Displays all items currently in inventory, as well as total size
@@ -58,6 +85,7 @@ def displayInventory(productList):
         else:    
             print(product)
     print("Total number of items: " + str(len(productList)))
+
 
 def inputProduct(productList):
     ''' takes in a product name and expiration date
@@ -98,26 +126,26 @@ def inputProduct(productList):
         except ValueError:
             print('\nPlease enter all fields in the correct format.\n')
 
-    # Creates new Product object and adjusts quantities accordingly
+    # Creates new Product object
     newProduct = Product(name, expDateClass)
 
-    # gives item appropriate name
-    masterItem = None
+    # Check new Product object against current list
     for item in productList:
-        if item.name == newProduct.name:
-            masterItem = item
-            masterItem.quantity += 1
-            newProduct.name += '('+ str(masterItem.quantity) + ')'
+        # if other object in list matches Product type
+        if item.type == newProduct.type:
+            # adjust quanity for both objects
+            item.quantity += 1
+            newProduct.quantity += 1
+            # ensure new Product has minimum avaliable unique id
+            if newProduct.id == item.id:
+                newProduct.id += 1
+
+    # adjust name if needed
+    if newProduct.id != 1:
+        newProduct.name += '(' + str(newProduct.id) + ')'
 
     # Adds new Product object to list of products
     productList += [newProduct]
-
-    # quantity code
-    if masterItem != None:
-        spliceVal = len(masterItem.name)
-        for item in productList:
-            if item.name[:spliceVal] == masterItem.name:
-                item.quantity = masterItem.quantity
 
     # Sorts list
     productList.sort(key=lambda product: product.name)
@@ -154,7 +182,15 @@ def deleteProduct(productList):
                 while True:
                     deleteConfirm = str(input("Are you sure you wish to delete " + item.name + " from your inventory? Y/N ")).lower()
                     if deleteConfirm == 'y':
+
+                        # adjust quanities
+                        for product in productList:
+                            if item.type == product.type:
+                                product.quantity -= 1
+
+                        # remove item from list
                         productList.remove(item)
+
                         return
                     elif deleteConfirm == 'n':
                         return
@@ -162,28 +198,6 @@ def deleteProduct(productList):
                         print('\nInvalid choice. Please try again.')
 
         print("Invalid product. Check inventory and make sure name is correct.")
-
-def checkExpired(productList):
-    ''' scans through all products and determines what is expired
-        offers user choice to delete expired items from inventory
-    '''
-
-    # scans through all products
-    for product in productList:
-
-        # if product is expired, alert user and prompt if they wish to delete it from inventory
-        if product.isExpired():
-
-            while True:
-                choice = str(input(product.name + ' has expired. Do you wish to delete it from your inventory? Y/N ')).lower()
-                # NOTE: Cannot delete from productList directly due to nested for loop; instead stores product in delQueue
-                if choice == 'y':
-                    productList.remove(product)
-                    break
-                elif choice == 'n':
-                    break
-                else:
-                    print('\nInvalid choice. Please try again.')
 
 def displayDev(productList):
     ''' debug
@@ -193,7 +207,19 @@ def displayDev(productList):
         print("product.name: " + product.name)
         print("product.expDate: " + str(product.expDate))
         print("product.quantity: " + str(product.quantity))
+        print("product.type: " + product.type)
+        print("product.id: " + str(product.id)) 
         print()
+
+def clearShelve():
+    """ WARNING: REMOVES ALL DATa
+        Dev Tool use with caution
+    """ 
+    os.remove("inventory.bak")
+    os.remove("inventory.dat")
+    os.remove("inventory.dir")
+    print("Removed shelf files. Exiting program...")
+    sys.exit()
 
 # Main function
 def main():
@@ -247,6 +273,10 @@ def main():
             # Dev Display
             elif choice == 11:
                 displayDev(productList)
+
+            # clear shelf file (WARNING: REMOVES ALL DATA)
+            elif choice == 80085:
+                clearShelve()
 
             # Invalid choice
             else:
