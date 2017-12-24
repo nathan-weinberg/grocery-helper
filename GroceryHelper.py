@@ -57,16 +57,22 @@ def checkExpired(productList):
     '''
 
     # scans through all products
-    for product in productList:
+    for item in productList:
 
         # if product is expired, alert user and prompt if they wish to delete it from inventory
-        if product.isExpired():
+        if item.isExpired():
 
             while True:
-                choice = str(input(product.name + ' has expired. Do you wish to delete it from your inventory? Y/N ')).lower()
+                choice = str(input(item.name + ' has expired. Do you wish to delete it from your inventory? Y/N ')).lower()
                 # NOTE: Cannot delete from productList directly due to nested for loop; instead stores product in delQueue
                 if choice == 'y':
-                    productList.remove(product)
+
+                    # adjust quanities
+                    for product in productList:
+                        if item.type == product.type:
+                            product.quantity -= 1
+
+                    productList.remove(item)
                     break
                 elif choice == 'n':
                     break
@@ -148,7 +154,7 @@ def inputProduct(productList):
     productList += [newProduct]
 
     # Sorts list
-    productList.sort(key=lambda product: product.name)
+    productList.sort(key=lambda product: (product.name.lower(), product.id))
 
 def deleteProduct(productList):
     ''' deletes one or all items from inventory
