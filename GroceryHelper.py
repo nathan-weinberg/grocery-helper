@@ -30,19 +30,15 @@ import datetime
 from colorama import init, Fore, Back, Style
 init()
 
-# opens shelf file and computes current date
-shelfFile = shelve.open('inventory')
-currentDate = datetime.datetime.today()
-
 # Class/Function Definitions
 class Product:
     def __init__(self, name, expDate): 
-        self.name = name                                     # type str
-        self.expDate = expDate                               # type datetime
+        self.name = name                        # type str
+        self.expDate = expDate                  # type datetime
 
-        self.type = name.split('(')[0].lower()               # type str
-        self.quantity = 1                                    # type int
-        self.id = 1
+        self.id = 1                             # type int
+        self.type = name.split('(')[0].lower()  # type str
+        self.quantity = 1                       # type int
 
     def __repr__(self):
         return self.name + ": Expires " + str(self.expDate)
@@ -137,7 +133,7 @@ def inputProduct(productList):
 
     # Check new Product object against current list
     for item in productList:
-        # if other object in list matches Product type
+        # if other object in list matches new Product type
         if item.type == newProduct.type:
             # adjust quanity for both objects
             item.quantity += 1
@@ -153,20 +149,20 @@ def inputProduct(productList):
     # Adds new Product object to list of products
     productList += [newProduct]
 
-    # Sorts list
+    # Sorts list by name and id
     productList.sort(key=lambda product: (product.name.lower(), product.id))
 
 def deleteProduct(productList):
     ''' deletes one or all items from inventory
     '''
 
+    # immediately returns if productList is empty
     if len(productList) == 0:
         return
 
     # select product and ensure it is in inventory
     product = str(input('Please input the name of the product you wish to remove, or input "All" to empty inventory: ')).lower()
     
-    # if "All"
     if product == "all":
         while True:
             deleteConfirmAll = str(input("Are you sure you wish to delete all products from your inventory? Y/N ")).lower()
@@ -178,7 +174,6 @@ def deleteProduct(productList):
             else:
                 print('\nInvalid choice. Please try again.')
 
-    # else
     else:
 
         # finds and deletes product after confirmation
@@ -196,7 +191,6 @@ def deleteProduct(productList):
 
                         # remove item from list
                         productList.remove(item)
-
                         return
                     elif deleteConfirm == 'n':
                         return
@@ -224,7 +218,7 @@ def clearShelve():
     os.remove("inventory.bak")
     os.remove("inventory.dat")
     os.remove("inventory.dir")
-    print("Removed shelf files. Exiting program...")
+    print("Removed shelve files. Exiting program...")
     sys.exit()
 
 # Main function
@@ -233,9 +227,12 @@ def main():
     # license boilerplate
     print("GroceryHelper Copyright (C) 2017 Nathan Weinberg\nThis program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.\nThis is free software, and you are welcome to redistribute it\nunder certain conditions; type `show c' for details.\n")
 
-    # Imports data from shelfFile; if none exists creates new list
+    # opens shelve file
+    shelveFile = shelve.open('inventory')
+
+    # Imports data from shelveFile; if none exists creates new list
     try:
-        productList = shelfFile['productList']
+        productList = shelveFile['productList']
     except:
         productList = []
 
@@ -243,6 +240,9 @@ def main():
     checkExpired(productList)
     
     while True:
+
+        # updates current date
+        currentDate = datetime.datetime.today()
 
         # Display        
         print("\n-------------------------------------------\n               GroceryHelper\nCurrent Date is: " + str(currentDate) + "\n-------------------------------------------")
@@ -280,19 +280,20 @@ def main():
             elif choice == 11:
                 displayDev(productList)
 
-            # clear shelf file (WARNING: REMOVES ALL DATA)
-            elif choice == 80085:
+            # clear shelve file (WARNING: REMOVES ALL DATA)
+            elif choice == :
                 clearShelve()
 
             # Invalid choice
             else:
                 print('\nInvalid choice. Please try again.')
 
-    # Saves shelf file and exits program
-    shelfFile['productList'] = productList
-    shelfFile.close()
+    # Saves shelve file and exits program
+    shelveFile['productList'] = productList
+    shelveFile.close()
     print("\nGoodbye!")
 
 # More client code
 if __name__ == "__main__":
+    currentDate = datetime.datetime.today()
     main()
