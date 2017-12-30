@@ -281,7 +281,7 @@ def main():
                 displayDev(productList)
 
             # clear shelve file (WARNING: REMOVES ALL DATA)
-            elif choice == :
+            elif choice == 789:
                 clearShelve()
 
             # Invalid choice
