@@ -1,6 +1,6 @@
 '''
 GroceryHelper: A simple text-based program designed to help users keep track of their groceries
-Copyright (C) 2017 Nathan Weinberg
+Copyright (C) 2018 Nathan Weinberg
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
