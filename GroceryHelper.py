@@ -212,7 +212,7 @@ def displayDev(productList):
         print()
 
 def clearShelve():
-    """ WARNING: REMOVES ALL DATa
+    """ WARNING: REMOVES ALL DATA
         Dev Tool use with caution
     """ 
     os.remove("inventory.bak")
@@ -225,7 +225,7 @@ def clearShelve():
 def main():
 
     # license boilerplate
-    print("GroceryHelper Copyright (C) 2017 Nathan Weinberg\nThis program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.\nThis is free software, and you are welcome to redistribute it\nunder certain conditions; type `show c' for details.\n")
+    print("GroceryHelper Copyright (C) 2018 Nathan Weinberg\nThis program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.\nThis is free software, and you are welcome to redistribute it\nunder certain conditions; type `show c' for details.\n")
 
     # opens shelve file
     shelveFile = shelve.open('inventory')
