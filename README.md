@@ -8,6 +8,8 @@ GroceryHelper is a simple text-based program designed to help users keep track o
 ## Usage
 This file should be run from the command line.
 
+You can run in debug mode by adding an additonal argument 'debug'.
+
 ### Packages
 You must install the Colorama package. This can be done with
 
