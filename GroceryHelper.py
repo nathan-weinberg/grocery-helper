@@ -47,11 +47,18 @@ class Product:
 		if self.expDate < currentDate:
 			return True	
 
+	def willExpireSoon(self):
+		targetDate = self.expDate - datetime.timedelta(days=3)
+		if targetDate < currentDate:
+			return True
+
+
 def checkExpired(productList):
 	''' scans through all products and determines what is expired
         offers user choice to delete expired items from inventory
     '''
 
+	print()
 	# scans through all products
 	for item in productList:
 
@@ -83,6 +90,9 @@ def displayInventory(productList):
 	for product in productList:
 		if product.isExpired():
 			print(Fore.RED + str(product))
+			print(Style.RESET_ALL, end='')
+		elif product.willExpireSoon():
+			print(Fore.YELLOW + str(product))
 			print(Style.RESET_ALL, end='')
 		else:
 			print(product)
@@ -253,7 +263,7 @@ def main(debug):
 		currentDate = datetime.datetime.today()
 
 		# Display        
-		print("\n-------------------------------------------\n               GroceryHelper\nCurrent Date is: " + str(currentDate) + "\n-------------------------------------------")
+		print("\n-------------------------------------------\n               GroceryHelper\nCurrent Date is: " + str(currentDate) + "\n-------------------------------------------\n")
 		print("(1) Display inventory")
 		print("(2) Input new product")
 		print("(3) Delete product")
