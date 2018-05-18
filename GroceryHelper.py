@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # Nathan Weinberg
 # Coded in Python 3.6
 
-# imports
 import os
 import sys
 import shelve
@@ -89,17 +88,21 @@ def displayInventory(productList):
 	print()
 	for product in productList:
 
+		name = str(product.name)
+		expDate = "Expires: " + str(product.expDate)[:-9]
+		printProduct = "{} {}".format(name.ljust(20), expDate.ljust(20))
+
 		# highlight red if item is expired
 		if product.isExpired():
-			print(Fore.RED + str(product))
+			print(Fore.RED + str(printProduct))
 			print(Style.RESET_ALL, end='')
 		# highlight yellow if item will expire within three days
 		elif product.willExpireSoon():
-			print(Fore.YELLOW + str(product))
+			print(Fore.YELLOW + str(printProduct))
 			print(Style.RESET_ALL, end='')
 		# print normally otherwise
 		else:
-			print(product)
+			print(printProduct)
 
 	print("\nTotal number of items: " + str(len(productList)))
 
