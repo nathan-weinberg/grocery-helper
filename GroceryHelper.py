@@ -88,18 +88,22 @@ def displayInventory(productList):
 	'''
 	print()
 	for product in productList:
+
+		# highlight red if item is expired
 		if product.isExpired():
 			print(Fore.RED + str(product))
 			print(Style.RESET_ALL, end='')
+		# highlight yellow if item will expire within three days
 		elif product.willExpireSoon():
 			print(Fore.YELLOW + str(product))
 			print(Style.RESET_ALL, end='')
+		# print normally otherwise
 		else:
 			print(product)
+
 	print("\nTotal number of items: " + str(len(productList)))
 
-
-def inputProduct(productList):
+def addProduct(productList):
 	''' takes in a product name and expiration date
         and generates a new Product object in inventory
         also sorts inventory
@@ -284,7 +288,7 @@ def main(debug):
 			    
 			# Input new product
 			elif choice == 2:
-				inputProduct(productList)  
+				addProduct(productList)  
 
 			# Delete product
 			elif choice == 3:
