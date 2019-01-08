@@ -4,6 +4,7 @@
 *.dir
 
 # misc
+schema.json
 debug.log
 TODO.txt
 *.bat
