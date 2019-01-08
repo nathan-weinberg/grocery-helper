@@ -1,0 +1,2 @@
+mongoengine==0.16.3
+colorama==0.3.9

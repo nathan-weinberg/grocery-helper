@@ -1,6 +1,6 @@
 '''
-GroceryHelper: A simple text-based program designed to help users keep track of their groceries
-Copyright (C) 2018 Nathan Weinberg
+GroceryHelper
+Copyright (C) 2019 Nathan Weinberg
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,27 +20,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # Nathan Weinberg
 # Coded in Python 3.6
 
-import os
 import sys
-import shelve
 import datetime
+from mongoengine import *
 
 # colors text in Windows command prompt
 from colorama import init, Fore, Back, Style
 init()
 
 # Class/Function Definitions
-class Product:
-	def __init__(self, name, expDate): 
-		self.name = name                        # type str
-		self.expDate = expDate                  # type datetime
-
-		self.id = 1                             # type int
-		self.type = name.split('(')[0].lower()  # type str
-		self.quantity = 1                       # type int
-
-	def __repr__(self):
-		return self.name + ": Expires " + str(self.expDate)
+class Product(Document):
+	prodType = StringField(required=True, max_length=50)
+	expDate = DateTimeField(required=True)
+	note = StringField(max_length=50)
 
 	def isExpired(self):
 		if self.expDate < currentDate:
@@ -51,46 +43,41 @@ class Product:
 		if targetDate < currentDate:
 			return True
 
-
-def checkExpired(productList):
+def checkExpired():
 	''' scans through all products and determines what is expired
-        offers user choice to delete expired items from inventory
-    '''
-
+		offers user choice to delete expired items from inventory
+	'''
 	print()
+
 	# scans through all products
-	for item in productList:
+	for product in Product.objects:
 
 		# if product is expired, alert user and prompt if they wish to delete it from inventory
-		if item.isExpired():
+		if product.isExpired():
 
 			while True:
-				choice = str(input(item.name + ' has expired. Do you wish to delete it from your inventory? Y/N ')).lower()
-				# NOTE: Cannot delete from productList directly due to nested for loop; instead stores product in delQueue
+				choice = str(input(product.prodType + ' has expired. Do you wish to delete it from your inventory? Y/N ')).lower()
 				if choice == 'y':
-
-					# adjust quanities
-					for product in productList:
-						if item.type == product.type:
-							product.quantity -= 1
-
-					productList.remove(item)
+					product.delete()
 					break
 				elif choice == 'n':
 					break
 				else:
 					print('\nInvalid choice. Please try again.')
 
-def displayInventory(productList):
+def displayInventory():
 	''' Displays all items currently in inventory, as well as total size
-	    If item is expired item will print in red
+		If item is expired item will print in red
 	'''
 	print()
-	for product in productList:
+	for product in Product.objects.order_by("prodType", "expDate"):
 
-		name = str(product.name)
+		prodId = "ID: " + str(product.id)[-4:]
+		prodType = str(product.prodType)
 		expDate = "Expires: " + str(product.expDate)[:-9]
-		printProduct = "{} {}".format(name.ljust(20), expDate.ljust(20))
+		prodNote = str(product.note)
+
+		printProduct = "{} {} {}".format(prodId.ljust(10), prodType.ljust(20), expDate.ljust(20), prodNote.ljust(20))
 
 		# highlight red if item is expired
 		if product.isExpired():
@@ -104,19 +91,17 @@ def displayInventory(productList):
 		else:
 			print(printProduct)
 
-	print("\nTotal number of items: " + str(len(productList)))
+	print("\nTotal number of items: " + str(Product.objects.count()))
 
-def addProduct(productList):
-	''' takes in a product name and expiration date
-        and generates a new Product object in inventory
-        also sorts inventory
-    '''
+def addProduct():
+	''' takes in a product type, expiration date, any notes
+		generates a new Product object
+	'''
 
-	# item creation code
 	while True:
 		try:
-			# get product name
-			name = str(input("Please input product name: "))
+			# get product type
+			prodType = str(input("Please input product type: "))
 
 			# get expDate month
 			while True:
@@ -139,6 +124,12 @@ def addProduct(productList):
 			# Consolidates expDateString and creates expDateClass (datetime object)
 			expDateString = ' '.join([expMonth, expDay, expYear])
 			expDateClass = datetime.datetime.strptime(expDateString, '%m %d %Y')
+
+			# get product note
+			note = str(input('Please input any note you have about this product. Type "0" if none: '))
+			if note == "0":
+				note = None
+
 			break
 
 		# Loops if user input data incorrectly, causing strptime to throw a ValueError
@@ -146,45 +137,36 @@ def addProduct(productList):
 			print('\nPlease enter all fields in the correct format.\n')
 
 	# Creates new Product object
-	newProduct = Product(name, expDateClass)
+	if note == None:
+		newProduct = Product(
+			prodType=prodType,
+			expDate=expDateClass,
+		)
+	else:
+		newProduct = Product(
+			prodType=prodType,
+			expDate=expDateClass,
+			note=note
+		)
+	newProduct.save()
 
-	# Check new Product object against current list
-	for item in productList:
-		# if other object in list matches new Product type
-		if item.type == newProduct.type:
-			# adjust quanity for both objects
-			item.quantity += 1
-			newProduct.quantity += 1
-			# ensure new Product has minimum avaliable unique id
-			if newProduct.id == item.id:
-				newProduct.id += 1
-
-	# adjust name if needed
-	if newProduct.id != 1:
-		newProduct.name += '(' + str(newProduct.id) + ')'
-
-	# Adds new Product object to list of products
-	productList += [newProduct]
-
-	# Sorts list by name and id
-	productList.sort(key=lambda product: (product.name.lower(), product.id))
-
-def deleteProduct(productList):
+def deleteProduct():
 	''' deletes one or all items from inventory
 	'''
 
-	# immediately returns if productList is empty
-	if len(productList) == 0:
+	# immediately returns if no products in db
+	if Product.objects.count() == 0:
+		print("No items in database")
 		return
 
 	# select product and ensure it is in inventory
-	product = str(input('Please input the name of the product you wish to remove, or input "All" to empty inventory: ')).lower()
+	prodId = str(input('Please input the ID of the product you wish to remove, or input "All" to empty inventory: ')).lower()
 
-	if product == "all":
+	if prodId == "all":
 		while True:
 			deleteConfirmAll = str(input("Are you sure you wish to delete all products from your inventory? Y/N ")).lower()
 			if deleteConfirmAll == 'y':
-				del productList[:]
+				Product.objects.delete()
 				break
 			elif deleteConfirmAll == 'n':
 				break
@@ -193,76 +175,53 @@ def deleteProduct(productList):
 
 	else:
 
-	    # finds and deletes product after confirmation
-	    for item in productList:
-	        if item.name.lower() == product:
+		# finds and deletes product after confirmation
+		for product in Product.objects():
 
-	            while True:
-	                deleteConfirm = str(input("Are you sure you wish to delete " + item.name + " from your inventory? Y/N ")).lower()
-	                if deleteConfirm == 'y':
+			targ = str(product.id)[-4:]
 
-	                    # adjust quanities
-	                    for product in productList:
-	                        if item.type == product.type:
-	                            product.quantity -= 1
+			if targ == prodId:
 
-	                    # remove item from list
-	                    productList.remove(item)
-	                    return
-	                elif deleteConfirm == 'n':
-	                    return
-	                else:
-	                    print('\nInvalid choice. Please try again.')
+				while True:
+					deleteConfirm = str(input("Are you sure you wish to delete " + product.prodType + " with ID " + targ + " from your inventory? Y/N ")).lower()
+					if deleteConfirm == 'y':
+						product.delete()
+						return
+					elif deleteConfirm == 'n':
+						return
+					else:
+						print('\nInvalid choice. Please try again.')
 
-	    print("Invalid product. Check inventory and make sure name is correct.")
+		print("Invalid ID. Check inventory and make sure ID is correct.")
 
-def displayDev(productList):
+def displayDev():
 	''' debug function
 	'''
 	print()
-	for product in productList:
-		print("product.name: " + product.name)
+	for product in Product.objects:
+		print("product.prodType: " + product.prodType)
 		print("product.expDate: " + str(product.expDate))
-		print("product.quantity: " + str(product.quantity))
-		print("product.type: " + product.type)
-		print("product.id: " + str(product.id)) 
+		print("product.note: " + str(product.note)) 
 		print()
-
-def clearShelve(debug):
-	""" WARNING: REMOVES ALL DATA
-	    Dev Tool use with caution
-	""" 
-	if debug == True:
-		os.remove("inventory_debug.bak")
-		os.remove("inventory_debug.dat")
-		os.remove("inventory_debug.dir")
-	else:
-		os.remove("inventory.bak")
-		os.remove("inventory.dat")
-		os.remove("inventory.dir")
-	print("Removed shelve files. Exiting program...")
-	sys.exit()
 
 # Main function
 def main(debug):
 
-	# license boilerplate
-	print("GroceryHelper Copyright (C) 2018 Nathan Weinberg\nThis program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.\nThis is free software, and you are welcome to redistribute it\nunder certain conditions; type `show c' for details.")
-
-	# opens shelve file    
-	if debug == True:
-		shelveFile = shelve.open('inventory_debug')
-	else:
-		shelveFile = shelve.open('inventory')
-
-	# Imports data from shelveFile; if none exists creates new list
 	try:
-		productList = shelveFile['productList']
-	except:
-		productList = []
+		# opens db connection
+		if debug:
+			connect("ghdb_test", host='localhost', port=27017)
+		else:
+			connect("ghdb", host='localhost', port=27017)
+	except Exception as e:
+		print("Database Connection Error: ", e)
+		sys.exit()
+
+	# license boilerplate
+	print("GroceryHelper Copyright (C) 2019 Nathan Weinberg\nThis program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.\nThis is free software, and you are welcome to redistribute it\nunder certain conditions; type `show c' for details.")
 
 	# checks if any products have expired 
-	checkExpired(productList)
+	checkExpired()
 
 	while True:
 
@@ -272,7 +231,7 @@ def main(debug):
 		# Display        
 		print("\n-------------------------------------------\n               GroceryHelper\nCurrent Date is: " + str(currentDate) + "\n-------------------------------------------\n")
 		print("(1) Display inventory")
-		print("(2) Input new product")
+		print("(2) Add product")
 		print("(3) Delete product")
 		print("(0) Exit Program\n")
 
@@ -287,15 +246,15 @@ def main(debug):
 		else:
 			# Display inventory
 			if choice == 1:
-				displayInventory(productList)
-			    
+				displayInventory()
+				
 			# Input new product
 			elif choice == 2:
-				addProduct(productList)  
+				addProduct()  
 
 			# Delete product
 			elif choice == 3:
-				deleteProduct(productList)
+				deleteProduct()
 
 			# Exit
 			elif choice == 0:
@@ -303,22 +262,15 @@ def main(debug):
 
 			# Dev Display
 			elif choice == 11:
-				displayDev(productList)
-
-			# clear shelve file (WARNING: REMOVES ALL DATA)
-			elif choice == 789:
-				clearShelve(debug)
+				displayDev()
 
 			# Invalid choice
 			else:
 				print('\nInvalid choice. Please try again.')
 
-	# Saves shelve file and exits program
-	shelveFile['productList'] = productList
-	shelveFile.close()
+	# Exits program
 	print("\nGoodbye!")
 
-# More client code
 if __name__ == "__main__":
 	currentDate = datetime.datetime.today()
 
@@ -328,4 +280,4 @@ if __name__ == "__main__":
 	else:
 		debug = False
 
-	main(debug)	
+	main(debug)
