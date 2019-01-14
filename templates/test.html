@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+
+		<title>Test Page</title>
+		<meta charset="UTF-8">
+		<script>
+		var count = 1;
+		function addIngredient() {
+			
+			count++;
+			
+			var linebreak = document.createElement("BR");
+
+			var newItem = document.createElement("INPUT");
+			newItem.setAttribute("type","text");
+			newItem.setAttribute("name","item" + count);
+			newItem.setAttribute("required","true")
+
+			var newItemQty = document.createElement("INPUT");
+			newItemQty.setAttribute("type","number");
+			newItemQty.setAttribute("name","item" + count + "qty");
+			newItemQty.setAttribute("required","true");
+			newItemQty.setAttribute("min","1");
+
+			var items = document.getElementById("items");
+			items.appendChild(linebreak);
+			items.appendChild(newItem);
+			items.appendChild(newItemQty);
+
+		}
+		</script>
+
+	</head>
+
+	<body>
+
+		<div id=currentDate>
+			<h2>Current Date: {{ currentDate }}</h2>
+		</div>
+		<div id="form1">
+			<h2 id='form1Header'>addProduct</h2>
+			<form action="/add-product" method="post">
+				<div>
+					<label for="prod">prodType:</label>
+					<input type="text" id="prod" name="prodType" required="true">
+				</div>
+				<div>
+					<label for="exp">expDate:</label>
+					<input type="date" id="exp=" name="expDate" required="true"></input>
+				</div>
+				<div>
+					<label for="msg">Note:</label>
+					<input type="text" id="msg" name="note">
+				</div> 
+				<div class="button">
+					<button type="submit">Submit</button>
+				</div>
+			</form>
+		</div>
+		<br>
+		<div id="form2">
+			<h2 id='form2Header'>addRecipe</h2>
+			<form action="/add-recipe" method="post">
+				<div>
+					<label for="prod">rcpName:</label>
+					<input type="text" id="prod" name="prodType" required="true">
+				</div>
+				<div>
+					<label for="items">ingredients:</label>
+					<div id="items" name="ingredients">
+						<input type="text" name="item1" required="true"></input><input type="number" name="item1qty" required="true" min="1"></input>
+					</div>
+					<button onclick="addIngredient()">Add Ingredient</button>
+				</div>
+				<div>
+					<label for="msg">instructions:</label>
+					<textarea id="msg" name="instructions" required="true"></textarea>
+				</div> 
+				<div class="button">
+					<button type="submit">Submit</button>
+				</div>
+			</form>
+		</div>
+		<br>
+		<div id="form3">
+			<h2 id='form3Header'>deleteProduct</h2>
+			<form action="/delete-product" method="post">
+				<div>
+					<label for="prod">prodId:</label>
+					<input type="text" id="prod" name="prodId" required="true">
+				</div>
+				<div class="button">
+					<button type="submit">Submit</button>
+				</div>
+			</form>
+		</div>
+		<br>
+		<div id="form4">
+			<h2 id='form4Header'>deleteRecipe</h2>
+			<form action="/delete-recipe" method="post">
+				<div>
+					<label for="rcp">rcpId:</label>
+					<input type="text" id="rcp" name="rcpId" required="true">
+				</div>
+				<div class="button">
+					<button type="submit">Submit</button>
+				</div>
+			</form>
+		</div>
+	</body>
+
+</html>
