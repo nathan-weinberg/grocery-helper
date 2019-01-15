@@ -8,3 +8,5 @@ schema.json
 debug.log
 TODO.txt
 *.bat
+cli.py
+config.yaml

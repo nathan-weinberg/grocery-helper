@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # Coded in Python 3.6
 
 import sys
+import yaml
 import datetime
 from mongoengine import *
 
@@ -59,13 +60,19 @@ class Product(Document):
 	note = StringField(max_length=50)
 
 	def isExpired(self):
+		currentDate = datetime.datetime.today()
 		if self.expDate < currentDate:
-			return True	
+			return True
+		else:
+			return False
 
 	def willExpireSoon(self):
+		currentDate = datetime.datetime.today()
 		targetDate = self.expDate - datetime.timedelta(days=3)
-		if targetDate < currentDate:
+		if targetDate < currentDate < self.expDate:
 			return True
+		else:
+			return False
 
 def checkExpired():
 	''' scans through all products and determines what is expired
@@ -362,10 +369,9 @@ def makeRecipe():
 			else:
 				print('\nInvalid choice. Please try again.')
 
-def displayDev(code):
+def displayDev(code, config=None):
 	''' debug function
 	'''
-	print()
 	if code == 11:
 		for product in Product.objects:
 			print("product.id: " + str(product.id))
@@ -380,16 +386,27 @@ def displayDev(code):
 			print("recipe.ingredients: " + str(recipe.ingredients))
 			print("recipe.instructions: " + str(recipe.instructions)) 
 			print()
+	if code == 13:
+		print(config)
 
 # Main function
-def main(debug):
+def main(conf):
 
+	# load configuration data
 	try:
-		# opens db connection
-		if debug:
-			connect("ghdb_test", host='localhost', port=27017)
-		else:
-			connect("ghdb", host='localhost', port=27017)
+		with open(conf, 'r') as file:
+			config = yaml.load(file)
+	except Exception as e:
+		print("Error loading configuration data: ", e)
+		sys.exit()
+
+	# connect to database
+	try:
+		connect(db=config["db"], 
+				host=config["host"],
+				port=config["port"],
+				username=config["username"],
+				password=config["password"])
 	except Exception as e:
 		print("Database Connection Error: ", e)
 		sys.exit()
@@ -465,9 +482,11 @@ def main(debug):
 
 			# Dev Display
 			elif choice == 11:
-				displayDev(11)
-			elif choice == 11:
-				displayDev(12)
+				displayDev(choice)
+			elif choice == 12:
+				displayDev(choice)
+			elif choice == 13:
+				displayDev(choice, config)
 
 			# Invalid choice
 			else:
@@ -477,12 +496,10 @@ def main(debug):
 	print("Goodbye!")
 
 if __name__ == "__main__":
-	currentDate = datetime.datetime.today()
 
-	# Debug mode option
-	if len(sys.argv) > 1 and sys.argv[1] == 'debug':
-		debug = True
+	if len(sys.argv) == 1:
+		main("config.yaml")
+	elif len(sys.argv) == 2:
+		main(sys.argv[1])
 	else:
-		debug = False
-
-	main(debug)
+		print("Improper number of arguments - please see README")
