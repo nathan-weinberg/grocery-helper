@@ -20,12 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # Nathan Weinberg
 # Coded in Python 3.6
 
+import json
 import datetime
 from flask import *
 from flask_mongoengine import MongoEngine
 
 app = Flask(__name__)
-app.config['MONGODB_DB'] = 'ghdb_test'
+app.config['MONGODB_SETTINGS'] = json.load(open("config.json", "r"))
 db = MongoEngine(app)
 
 class Recipe(db.Document):

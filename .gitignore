@@ -9,3 +9,4 @@ debug.log
 TODO.txt
 *.bat
 cli.py
+config.json

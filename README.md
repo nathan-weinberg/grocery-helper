@@ -14,12 +14,18 @@ GroceryHelper is a simple API designed to help users keep track of their groceri
 ## Usage
 This file should be run from the command line. Example:
 
- `$ python3 GroceryHelper.py`
+`$ python3 GroceryHelper.py`
 
 By default the API will be accessable at `http://127.0.0.1:5000`
 
 ### Database
-Addtionally, a MongoDB instance must be running for the API to function correctly. By default, it will attempt to connect to a database named "ghdb_test". The default collections are "product" and "recipe".
+Addtionally, a MongoDB instance must be running for the API to function correctly. You must also have a configuration file named "config.json" (based off "config_example.json") in the same directory as "GroceryHelper.py"
+
+Quickstart for Local Use:
+
+`$ cp config_example.json config.json`
+
+The default collections are "product" and "recipe".
 
 ### Routes
 
