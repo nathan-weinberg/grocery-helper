@@ -1,0 +1,5 @@
+db: ghdb
+host: localhost
+port: 27017
+username: False
+password: False
