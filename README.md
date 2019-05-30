@@ -47,15 +47,46 @@ The default collections are "product" and "recipe".
 - **/add-product**
 	- Methods: `POST`
 	- Used to create new Product object
+	- JSON format must be as follows:
+	```
+		{
+			"prodType" : "example name",
+			"expDate": "1/1/1970",
+			"note": "example note"
+		}
+	```
 - **/add-recipe**
 	- Methods: `POST`
 	- Used to create new Recipe object
+	- JSON format must be as follows:
+	```
+		{
+			"rcpName": "example name",
+			"ingredients": {
+				"example ingredient name" : 4,
+				"example ingredient name" : 2
+			},
+			"instructions": "example instructions"
+		}
+	```
 - **/delete-product**
 	- Methods: `POST`
 	- Used to delete one or all Product objects
+	- JSON format must be as follows:
+	```
+		{
+			"prodId": "last four characters of Mongo _id"
+		}
+	```
 - **/delete-recipe**
 	- Methods: `POST`
 	- Used to delete one or all Recipe objects
+	- JSON format must be as follows:
+	```
+		{
+			"rcpId": "last four characters of Mongo _id"
+		}
+	```
 
 ### Packages
 You must install the flask package and the flask-mongoengine package. This can be done with

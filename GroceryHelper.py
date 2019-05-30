@@ -122,12 +122,21 @@ def getExpiring():
 @app.route('/add-product', methods=['POST'])
 def addProduct():
 	''' takes in a product type, expiration date, any notes
-		generates a new Product object
+		generates a new Product object. JSON format must be
+		as follows:
+
+		{
+			"prodType" : "example name",
+			"expDate": "1/1/1970",
+			"note": "example note"
+		}
 	'''
 
-	prodType = request.form.get("prodType").lower()
-	expDate = request.form.get("expDate")
-	note = request.form.get("note")
+	# recieve and parse incoming JSON data
+	data = request.get_json()
+	prodType = data["prodType"].lower()
+	expDate = data["expDate"]
+	note = data["note"]
 
 	# Creates new Product object and saves it to database
 	if note == None:
@@ -147,20 +156,24 @@ def addProduct():
 
 @app.route('/add-recipe', methods=['POST'])
 def addRecipe():
-	''' adds recipe to database
+	''' adds recipe to database. JSON format must be
+		as follows:
+
+		{
+			"rcpName": "example name",
+			"ingredients": {
+				"example ingredient name" : 4,
+				"example ingredient name" : 2
+			},
+			"instructions": "example instructions"
+		}
 	'''
 
-	rcpName = request.form.get("prodType")
-
-	# must manually assemble ingredient form data into dict
-	ingredientData = request.form.to_dict()
-	print(ingredientData)
-	ingredients = {}
-	for key in ingredientData:
-		if key[:-1] == "item":
-			ingredients[ingredientData[key]] = int(ingredientData[key+"qty"])
-
-	instructions = request.form.get("instructions")
+	# recieve and parse incoming JSON data
+	data = request.get_json()
+	rcpName = data["rcpName"]
+	ingredients = data["ingredients"]
+	instructions = data["instructions"]
 
 	# Creates new Recipe object
 	newRecipe = Recipe(
@@ -174,15 +187,21 @@ def addRecipe():
 
 @app.route('/delete-product', methods=['POST'])
 def deleteProduct():
-	''' deletes one or all items from inventory
+	''' deletes one or all items from inventory. JSON format must be
+		as follows:
+
+		{
+			"prodId": "last four characters of Mongo _id"
+		}
 	'''
 
 	# immediately returns if no products in db
 	if Product.objects.count() == 0:
 		return jsonify(success=False, message="No products in database.")
 
-	# select product and ensure it is in inventory
-	prodId = request.form.get("prodId")
+	# recieve and parse incoming JSON data
+	data = request.get_json()
+	prodId = data["prodId"]
 
 	if prodId == "all":
 		Product.objects.delete()
@@ -198,15 +217,21 @@ def deleteProduct():
 
 @app.route('/delete-recipe', methods=['POST'])
 def deleteRecipe():
-	''' deletes one or all recipes from database
+	''' deletes one or all recipes from database. JSON format must be
+		as follows:
+
+		{
+			"rcpId": "last four characters of Mongo _id"
+		}
 	'''
 
 	# immediately returns if no recipes in db
 	if Recipe.objects.count() == 0:
 		return jsonify(success=False, message="No recipes in database.")
 
-	# select recipe and ensure it is in inventory
-	rcpId = request.form.get("rcpId")
+	# recieve and parse incoming JSON data
+	data = request.get_json()
+	rcpId = data["rcpId"]
 
 	if rcpId == "all":
 		Recipe.objects.delete()
