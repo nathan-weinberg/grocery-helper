@@ -10,3 +10,4 @@ TODO.txt
 *.bat
 cli.py
 config.yaml
+config.json
