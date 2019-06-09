@@ -1,7 +1,7 @@
 # GroceryHelper
 
 ## Purpose
-GroceryHelper is a simple API designed to help users keep track of their groceries.
+GroceryHelper is a simple application designed to help users keep track of their groceries.
 
 ### Features
 
@@ -13,12 +13,12 @@ GroceryHelper is a simple API designed to help users keep track of their groceri
 ### Backend
 To run the backend API for this project:
 
-`$ python3 GroceryHelper.py`
+`$ python3 api.py`
 
 By default the API will be accessable at `http://127.0.0.1:5000`
 
 ### Database
-Addtionally, a MongoDB instance must be running for the API to function correctly. You must also have a configuration file named "config.json" (based off "config.json.example") in the same directory as "GroceryHelper.py"
+A MongoDB instance must be running for the application to function correctly. You must also have a configuration file named "config.json" (based off "config.json.example") in the same directory as the file attemping to use it (either "api.py" or "cli.py").
 
 Quickstart for Local Use:
 
@@ -26,13 +26,13 @@ Quickstart for Local Use:
 
 The default collections are "product" and "recipe".
 
-### Frontend
-GroceryHelper uses an Angular frontend.
-
 ### CLI
 Additionally, a CLI is included. Note that the CLI connects to the database directly using `config.json` and does not require the API to be running (although it does require an active Mongo instance). To run the CLI:
 
 `$ python3 cli.py`
+
+### Frontend
+GroceryHelper uses an Angular frontend that is currently under construction. At present it is recommended to use the CLI to interface with the application.
 
 ### API Routes
 

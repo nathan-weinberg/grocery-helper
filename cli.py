@@ -54,12 +54,16 @@ class Product(Document):
 
 	def isExpired(self):
 		if self.expDate < currentDate:
-			return True	
+			return True
+		else:
+			return False
 
 	def willExpireSoon(self):
 		targetDate = self.expDate - datetime.timedelta(days=3)
 		if targetDate < currentDate:
 			return True
+		else:
+			return False
 
 def checkExpired():
 	''' scans through all products and determines what is expired
