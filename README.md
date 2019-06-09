@@ -1,6 +1,4 @@
 # GroceryHelper
-#### Author: Nathan Weinberg
-##### Written in Python 3.6
 
 ## Purpose
 GroceryHelper is a simple API designed to help users keep track of their groceries.
@@ -12,22 +10,31 @@ GroceryHelper is a simple API designed to help users keep track of their groceri
 - Can identify items that either have or will soon expire
 
 ## Usage
-This file should be run from the command line. Example:
+### Backend
+To run the backend API for this project:
 
 `$ python3 GroceryHelper.py`
 
 By default the API will be accessable at `http://127.0.0.1:5000`
 
 ### Database
-Addtionally, a MongoDB instance must be running for the API to function correctly. You must also have a configuration file named "config.json" (based off "config_example.json") in the same directory as "GroceryHelper.py"
+Addtionally, a MongoDB instance must be running for the API to function correctly. You must also have a configuration file named "config.json" (based off "config.json.example") in the same directory as "GroceryHelper.py"
 
 Quickstart for Local Use:
 
-`$ cp config_example.json config.json`
+`$ cp config.json.example config.json`
 
 The default collections are "product" and "recipe".
 
-### Routes
+### Frontend
+GroceryHelper uses an Angular frontend.
+
+### CLI
+Additionally, a CLI is included. Note that the CLI connects to the database directly using `config.json` and does not require the API to be running (although it does require an active Mongo instance). To run the CLI:
+
+`$ python3 cli.py`
+
+### API Routes
 
 - **/**
 	- Methods: `GET`
@@ -49,54 +56,46 @@ The default collections are "product" and "recipe".
 	- Used to create new Product object
 	- JSON format must be as follows:
 	```
-		{
-			"prodType" : "example name",
-			"expDate": "1/1/1970",
-			"note": "example note"
-		}
+	{
+		"prodType" : "example name",
+		"expDate": "1/1/1970",
+		"note": "example note"
+	}
 	```
 - **/add-recipe**
 	- Methods: `POST`
 	- Used to create new Recipe object
 	- JSON format must be as follows:
 	```
-		{
-			"rcpName": "example name",
-			"ingredients": {
-				"example ingredient name" : 4,
-				"example ingredient name" : 2
-			},
-			"instructions": "example instructions"
-		}
+	{
+		"rcpName": "example name",
+		"ingredients": {
+			"example ingredient name" : 4,
+			"example ingredient name" : 2
+		},
+		"instructions": "example instructions"
+	}
 	```
 - **/delete-product**
 	- Methods: `POST`
 	- Used to delete one or all Product objects
 	- JSON format must be as follows:
 	```
-		{
-			"prodId": "last four characters of Mongo _id"
-		}
+	{
+		"prodId": "last four characters of Mongo _id"
+	}
 	```
 - **/delete-recipe**
 	- Methods: `POST`
 	- Used to delete one or all Recipe objects
 	- JSON format must be as follows:
 	```
-		{
-			"rcpId": "last four characters of Mongo _id"
-		}
+	{
+		"rcpId": "last four characters of Mongo _id"
+	}
 	```
 
 ### Packages
-You must install the flask package and the flask-mongoengine package. This can be done with
+To install packages run:
 
-`pip install flask`
-
-`pip install flask-mongoengine`
-
-or they can be found here:
-
-http://flask.pocoo.org/
-
-http://docs.mongoengine.org/projects/flask-mongoengine/en/latest/
+`$ pip install -r requirements.txt`
